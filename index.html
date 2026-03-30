@@ -4,216 +4,170 @@
   <title>Rifled Barrel Simulator</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 1000px; margin: 20px auto; padding: 20px; }
-    .controls { margin: 20px 0; }
-    button { padding: 10px 20px; font-size: 16px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #005a87; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    .results { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px; }
-    .result-item { font-size: 18px; margin: 8px 0; }
-    canvas { border: 1px solid #ddd; margin: 20px 0; }
-    .node-label { position: absolute; background: rgba(0,0,0,0.8); color: white; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+    body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; max-width: 1100px; margin: 0 auto; padding: 30px; background: #f8f9fa; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .controls { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .control-group { display: inline-block; margin: 0 20px 10px 0; }
+    label { display: block; font-weight: 500; margin-bottom: 5px; color: #333; }
+    input[type=number] { width: 100px; padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px; }
+    input:focus { border-color: #007cba; outline: none; box-shadow: 0 0 0 3px rgba(0,124,186,0.1); }
+    #runBtn { padding: 12px 32px; font-size: 18px; background: linear-gradient(135deg,#007cba,#005a87); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    #runBtn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,124,186,0.3); }
+    #runBtn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    #status { margin-left: 15px; font-weight: 500; color: #666; }
+    canvas { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin: 20px 0; }
+    .results { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: white; padding: 25px; border-radius: 12px; margin-top: 20px; }
+    .result-item { font-size: 20px; margin: 12px 0; display: flex; justify-content: space-between; }
+    .result-value { font-weight: 700; font-size: 24px; }
+    .instructions { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
   </style>
 </head>
 <body>
-  <h1>Rifled Barrel Pressure Curve Simulator</h1>
-  
-  <div class="controls">
-    <label>Peak Pressure (MPa): <input type="number" id="pMax" value="400" min="100" max="600" step="10"></label>
-    <label>Bore Diameter (mm): <input type="number" id="boreDia" value="7.62" min="5" max="12" step="0.01"></label>
-    <label>Projectile Mass (g): <input type="number" id="mass" value="9.7" min="5" max="20" step="0.1"></label>
-    <br><br>
-    <button id="runBtn" onclick="runSimulation()">Run Simulation</button>
-    <span id="status">Ready</span>
+  <div class="header">
+    <h1>🔫 Rifled Barrel Pressure Simulator</h1>
+    <p>Drag <span style="color:#ff5722">orange nodes</span> to shape pressure curve, then <strong>Run Simulation</strong></p>
   </div>
 
-  <canvas id="pressureChart" width="900" height="400"></canvas>
+  <div class="instructions">
+    <strong>Node 1:</strong> Fixed origin (0,0)<br>
+    <strong>Node 2:</strong> Peak pressure timing <span style="color:#ff5722">(draggable)</span><br>  
+    <strong>Node 3:</strong> Decay shape <span style="color:#ff5722">(draggable)</span><br>
+    <strong>Node 4:</strong> Pressure tail end
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Peak Pressure</label>
+      <input type="number" id="pMax" value="400" min="100" max="600" step="25">
+      <small>MPa</small>
+    </div>
+    <div class="control-group">
+      <label>Bore Diameter</label>
+      <input type="number" id="boreDia" value="7.62" min="5" max="12" step="0.01">
+      <small>mm</small>
+    </div>
+    <div class="control-group">
+      <label>Bullet Mass</label>
+      <input type="number" id="mass" value="9.7" min="5" max="20" step="0.1">
+      <small>grams</small>
+    </div>
+    <div style="display:inline-block; vertical-align:bottom;">
+      <button id="runBtn">🚀 Run Simulation</button>
+      <span id="status">Ready</span>
+    </div>
+  </div>
+
+  <canvas id="pressureChart" width="1000" height="450"></canvas>
 
   <div class="results" id="results" style="display: none;">
-    <h3>Results:</h3>
-    <div class="result-item"><strong>Peak Pressure:</strong> <span id="peakP">-</span> MPa</div>
-    <div class="result-item"><strong>Barrel Time:</strong> <span id="barrelTime">-</span> ms</div>
-    <div class="result-item"><strong>Muzzle Velocity:</strong> <span id="muzzleV">-</span> m/s</div>
-    <div class="result-item"><strong>Total Spin:</strong> <span id="totalSpin">-</span> revolutions</div>
+    <h2>Simulation Results</h2>
+    <div class="result-item">
+      <span>Peak Pressure</span>
+      <span class="result-value" id="peakP">-</span>
+    </div>
+    <div class="result-item">
+      <span>Barrel Time</span>
+      <span class="result-value" id="barrelTime">-</span>
+    </div>
+    <div class="result-item">
+      <span>Muzzle Velocity</span>
+      <span class="result-value" id="muzzleV">-</span>
+    </div>
+    <div class="result-item">
+      <span>Total Revolutions</span>
+      <span class="result-value" id="totalSpin">-</span>
+    </div>
   </div>
 
   <script>
-    let chart;
-    const canvas = document.getElementById('pressureChart');
-    const ctx = canvas.getContext('2d');
-
-    // Node positions (t_sec, pressure_normalized)
-    let nodes = [
-      [0.0, 0.0],     // Fixed
-      [0.0008, 1.0],  // Peak (draggable)
-      [0.0020, 0.4],  // Decay (draggable)  
-      [0.0035, 0.2]   // Tail (fixed position, pressure draggable)
-    ];
-
-    let isDragging = -1;
-    let dragOffset = { x: 0, y: 0 };
-
-    // Initialize chart
-    chart = new Chart(ctx, {
-      type: 'line',
-       {
-        datasets: [{
-          label: 'Pressure Curve',
-           [],
-          borderColor: '#d32f2f',
-          backgroundColor: 'rgba(211, 47, 47, 0.1)',
-          tension: 0.4,
-          fill: true,
-          pointRadius: 8,
-          pointHoverRadius: 10
-        }]
-      },
-      options: {
-        responsive: false,
-        scales: {
-          x: { title: { display: true, text: 'Time (ms)' }, min: 0, max: 4 },
-          y: { title: { display: true, text: 'Pressure (MPa)' }, min: 0, max: 500 }
-        },
-        plugins: { legend: { display: false } },
-        interaction: { intersect: false }
+    // COMPLETE SIMULATOR LOGIC - NO EXTERNAL FILES NEEDED
+    
+    const MM_PER_INCH = 25.4;
+    const TWO_PI = Math.PI * 2;
+    
+    class NodePressureSimulation {
+      constructor({ pMaxMPa = 400, nodes = [], boreDiameterMm = 7.62, projectileMassGrams = 9.7, frictionN = 250, barrelLengthMm = 558, twistRateInPerRev = 7 }) {
+        this.pMaxMPa = pMaxMPa * 1e6;
+        this.nodes = nodes;
+        this.boreRadiusM = boreDiameterMm / 2000;
+        this.boreAreaM2 = Math.PI * this.boreRadiusM ** 2;
+        this.massKg = projectileMassGrams / 1000;
+        this.frictionN = frictionN;
+        this.barrelLengthM = barrelLengthMm / 1000;
+        this.twistRateMPerRev = twistRateInPerRev * MM_PER_INCH / 1000;
       }
-    });
+      
+      interpolate(t) {
+        const ts = this.nodes.map(n => n[0]);
+        const ps = this.nodes.map(n => n[1]);
+        for (let i = 0; i < ts.length - 1; i++) {
+          if (t >= ts[i] && t <= ts[i+1]) {
+            const frac = (t - ts[i]) / (ts[i+1] - ts[i]);
+            const p0 = ps[i], p1 = ps[i+1];
+            const m0 = i > 0 ? (ps[i] - ps[i-1]) / (ts[i] - ts[i-1]) : 0;
+            const m1 = i < ps.length-2 ? (ps[i+2] - ps[i+1]) / (ts[i+2] - ts[i+1]) : 0;
+            const dt = ts[i+1] - ts[i];
+            const h00 = 2*frac**3 - 3*frac**2 + 1;
+            const h10 = frac**3 - 2*frac**2 + frac;
+            const h01 = -2*frac**3 + 3*frac**2;
+            const h11 = frac**3 - frac**2;
+            return p0*h00 + m0*dt*h10 + p1*h01 + m1*dt*h11;
+          }
+        }
+        return t > ts[ts.length-1] ? 0 : ps[0];
+      }
+      
+      run(dt = 0.00002) {
+        let t=0, x=0, v=0, frames=[];
+        while (x < this.barrelLengthM && t < 0.006) {
+          const pNorm = this.interpolate(t);
+          const pPa = pNorm * this.pMaxMPa;
+          const fGas = pPa * this.boreAreaM2;
+          const fNet = Math.max(0, fGas - this.frictionN);
+          const a = fNet / this.massKg;
+          v += a * dt; x += v * dt;
+          const revs = x / this.twistRateMPerRev;
+          frames.push({t:t.toFixed(5),p:Math.round(pPa/1e6),x:Math.round(x*1000),v:Math.round(v),r:Math.round(revs*100)/100});
+          t += dt; if (frames.length>200000) break;
+        }
+        const final = frames[frames.length-1]||{};
+        return {
+          peakPressureMPa: Math.max(...frames.map(f=>f.p)),
+          barrelTimeS: parseFloat(final.t||0),
+          muzzleVelocityMps: parseFloat(final.v||0),
+          totalRevolutions: parseFloat(final.r||0),
+          frames: frames.slice(0,500)
+        };
+      }
+    }
 
-    // Draw nodes on canvas overlay
+    // UI Logic
+    let chart, canvas, ctx, nodes = [[0,0],[.0008,1],[.002,.4],[.0035,.2]], isDragging=-1, dragOffset={x:0,y:0};
+    
+    // Init chart
+    window.onload = () => {
+      canvas = document.getElementById('pressureChart');
+      ctx = canvas.getContext('2d');
+      chart = new Chart(ctx, {
+        type:'line', data:{datasets:[{label:'Pressure',data:[],borderColor:'#d32f2f',backgroundColor:'rgba(211,47,47,0.1)',tension:.4,fill:!0,pointRadius:0}]},
+        options:{responsive:!1,scales:{x:{title:{display:!0,text:'Time (ms)'},min:0,max:4},y:{title:{display:!0,text:'Pressure (MPa)'},min:0,max:500}},plugins:{legend:{display:!1}}}}
+      );
+      drawNodes(); updatePreview();
+    };
+
     function drawNodes() {
-      ctx.save();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Grid
-      ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
-      for (let x = 0; x < canvas.width; x += 50) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-      }
-      
-      // Nodes
-      nodes.forEach((node, i) => {
-        const x = (node[0] * 1000 / 4) * canvas.width;  // ms scale
-        const y = canvas.height - (node[1] * 500 / 500) * canvas.height;
-        
-        ctx.fillStyle = i === 1 || i === 2 ? '#ff5722' : '#1976d2';  // Orange draggable, blue fixed
-        ctx.beginPath();
-        ctx.arc(x, y, 8, 0, TWO_PI);
-        ctx.fill();
-        ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
-        
-        // Labels
-        ctx.fillStyle = 'black'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
-        ctx.fillText(`N${i+1}`, x, y - 15);
-        ctx.fillText(`${node[0]*1000:.1f}ms`, x, y + 25);
-      });
-      ctx.restore();
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1;
+      for(let x=0;x<canvas.width;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+      nodes.forEach((n,i)=>{const x=n[0]*1000/4*canvas.width,y=canvas.height-n[1]*canvas.height;ctx.fillStyle=i==1||i==2?'#ff5722':'#1976d2';ctx.beginPath();ctx.arc(x,y,10,0,TWO_PI);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='black';ctx.font='bold 14px Arial';ctx.textAlign='center';ctx.fillText(`N${i+1}`,x,y-20);ctx.fillText(`${(n[0]*1000).toFixed(1)}ms`,x,y+30);});
     }
 
-    // Mouse events for dragging
-    canvas.addEventListener('mousedown', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      nodes.forEach((node, i) => {
-        const nodeX = (node[0] * 1000 / 4) * canvas.width;
-        const nodeY = canvas.height - (node[1] * 500 / 500) * canvas.height;
-        if (Math.hypot(x - nodeX, y - nodeY) < 12) {
-          isDragging = i === 1 || i === 2 ? i : -1;  // Only nodes 2,3 draggable
-          dragOffset = { x: nodeX - x, y: nodeY - y };
-        }
-      });
-    });
+    ['mousedown','mousemove','mouseup'].forEach(ev=>canvas.addEventListener(ev,e=>{const r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;if(ev=='mousedown'){nodes.forEach((n,i)=>{const nx=n[0]*1000/4*canvas.width,ny=canvas.height-n[1]*canvas.height;if(Math.hypot(mx-nx,my-ny)<15)isDragging=i==1||i==2?i:-1;});}else if(ev=='mousemove'&&isDragging>-1){nodes[isDragging][0]=Math.max(0,(mx/canvas.width)*4/1000);nodes[isDragging][1]=Math.max(0,Math.min(1,1-my/canvas.height));drawNodes();updatePreview();}else isDragging=-1;}));
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (isDragging === -1) return;
-      
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left + dragOffset.x;
-      const y = e.clientY - rect.top + dragOffset.y;
-      
-      // Convert back to node coords
-      nodes[isDragging][0] = Math.max(0, (x / canvas.width) * 4 / 1000);  // Clamp t>=0
-      nodes[isDragging][1] = Math.max(0, Math.min(1, 1 - y / canvas.height));  // Clamp p 0-1
-      
-      drawNodes();
-      updateCurvePreview();
-    });
+    function updatePreview(){const pMax=parseFloat(document.getElementById('pMax').value)||400,tEval=Array.from({length:100},(_,i)=>i*.00004),pData=tEval.map(t=>interpolate(t)*pMax);chart.data.datasets[0].data=tEval.map((t,i)=>({x:t*1000,y:pData[i]}));chart.update('none');}
+    function interpolate(t){return new NodePressureSimulation({nodes}).interpolate(t);}  // Preview helper
 
-    canvas.addEventListener('mouseup', () => isDragging = -1);
-
-    function updateCurvePreview() {
-      const pMax = parseFloat(document.getElementById('pMax').value) || 400;
-      const tEval = Array.from({length: 100}, (_, i) => i * 0.00004);
-      const pData = tEval.map(t => interpolate(t) * pMax);
-      
-      chart.data.datasets[0].data = tEval.map((t, i) => ({
-        x: t * 1000,  // ms
-        y: pData[i]
-      }));
-      chart.update('none');
-    }
-
-    // Cubic Hermite spline (from previous code)
-    function interpolate(t) {
-      const ts = nodes.map(n => n[0]);
-      const ps = nodes.map(n => n[1]);
-      
-      for (let i = 0; i < ts.length - 1; i++) {
-        if (t >= ts[i] && t <= ts[i+1]) {
-          const frac = (t - ts[i]) / (ts[i+1] - ts[i]);
-          const p0 = ps[i], p1 = ps[i+1];
-          const m0 = i > 0 ? (ps[i] - ps[i-1]) / (ts[i] - ts[i-1]) : 0;
-          const m1 = i < ps.length-2 ? (ps[i+2] - ps[i+1]) / (ts[i+2] - ts[i+1]) : 0;
-          
-          const h00 = 2*frac**3 - 3*frac**2 + 1;
-          const h10 = frac**3 - 2*frac**2 + frac;
-          const h01 = -2*frac**3 + 3*frac**2;
-          const h11 = frac**3 - frac**2;
-          
-          return p0 * h00 + m0 * (ts[i+1]-ts[i]) * h10 + p1 * h01 + m1 * (ts[i+1]-ts[i]) * h11;
-        }
-      }
-      return 0;
-    }
-
-    // Main simulation (your NodePressureSimulation logic)
-    async function runSimulation() {
-      const runBtn = document.getElementById('runBtn');
-      const status = document.getElementById('status');
-      
-      runBtn.disabled = true;
-      status.textContent = 'Running...';
-      
-      const pMax = parseFloat(document.getElementById('pMax').value);
-      const boreDia = parseFloat(document.getElementById('boreDia').value);
-      const mass = parseFloat(document.getElementById('mass').value);
-      
-      // Run simulation (simplified from previous)
-      const sim = new NodePressureSimulation({
-        pMaxMPa: pMax,
-        nodes: nodes,
-        boreDiameterMm: boreDia,
-        projectileMassGrams: mass
-      });
-      
-      const result = sim.run();
-      
-      // Update results
-      document.getElementById('peakP').textContent = result.final.peakPressureMPa;
-      document.getElementById('barrelTime').textContent = (result.final.timeS * 1000).toFixed(2);
-      document.getElementById('muzzleV').textContent = result.final.muzzleVelocityMps.toFixed(0);
-      document.getElementById('totalSpin').textContent = result.final.totalRevolutions.toFixed(1);
-      
-      document.getElementById('results').style.display = 'block';
-      
-      runBtn.disabled = false;
-      status.textContent = 'Complete';
-    }
-
-    // Initial draw
-    drawNodes();
-    updateCurvePreview();
+    document.getElementById('runBtn').onclick=()=>{const btn=document.getElementById('runBtn'),status=document.getElementById('status');btn.disabled=true;status.textContent='Simulating...';const pMax=parseFloat(document.getElementById('pMax').value),boreDia=parseFloat(document.getElementById('boreDia').value),mass=parseFloat(document.getElementById('mass').value);const sim=new NodePressureSimulation({pMaxMPa:pMax,nodes:nodes,boreDiameterMm:boreDia,projectileMassGrams:mass});const result=sim.run();document.getElementById('peakP').textContent=`${result.peakPressureMPa}`;document.getElementById('barrelTime').textContent=`${(result.barrelTimeS*1000).toFixed(2)}`;document.getElementById('muzzleV').textContent=`${result.muzzleVelocityMps.toFixed(0)}`;document.getElementById('totalSpin').textContent=`${result.totalRevolutions.toFixed(1)}`;document.getElementById('results').style.display='block';btn.disabled=false;status.textContent='Complete ✓';};
   </script>
 </body>
 </html>
