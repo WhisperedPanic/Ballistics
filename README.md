@@ -21,7 +21,7 @@ A **7-equation lumped parameter model** for interior ballistics simulation, base
 1. Create repository on GitHub
 2. Push all files
 3. Enable GitHub Pages (Settings → Pages → main branch → root)
-4. Visit: `https://YOUR_USERNAME.github.io/interior-ballistics-js/`
+4. Visit: `https://YOUR_USERNAME.github.io/Ballistics/`
 
 ## ⚠️ Disclaimer
 
