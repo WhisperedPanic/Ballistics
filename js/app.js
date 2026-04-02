@@ -38,22 +38,125 @@ function initCharts() {
     }
   };
   
+  // ✅ Pressure Chart - FIXED: Added "data:" keys
   charts.pressure = new Chart(document.getElementById('pressureChart'), {
     type: 'line',
-     { labels: [], datasets: [{ label: 'Average Pressure (MPa)',  [], borderColor: 'rgb(255, 99, 132)', backgroundColor: 'rgba(255, 99, 132, 0.1)', tension: 0.1, fill: true }, { label: 'Base Pressure (MPa)',  [], borderColor: 'rgb(54, 162, 235)', backgroundColor: 'rgba(54, 162, 235, 0.1)', tension: 0.1, fill: true }] },
-    options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { display: true, text: 'Pressure (MPa)', color: '#888' } }, x: { ...commonOptions.scales.x, title: { display: true, text: 'Time (ms)', color: '#888' } } } }
+    data: {  // ← ADDED
+      labels: [],
+      datasets: [
+        {
+          label: 'Average Pressure (MPa)',
+          data: [],  // ← ADDED "data:" key
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.1)',
+          tension: 0.1,
+          fill: true
+        },
+        {
+          label: 'Base Pressure (MPa)',
+          data: [],  // ← ADDED "data:" key
+          borderColor: 'rgb(54, 162, 235)',
+          backgroundColor: 'rgba(54, 162, 235, 0.1)',
+          tension: 0.1,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        ...commonOptions.scales,
+        y: {
+          ...commonOptions.scales.y,
+          title: { display: true, text: 'Pressure (MPa)', color: '#888' }
+        },
+        x: {
+          ...commonOptions.scales.x,
+          title: { display: true, text: 'Time (ms)', color: '#888' }
+        }
+      }
+    }
   });
   
+  // ✅ Velocity Chart - FIXED: Added "data:" keys
   charts.velocity = new Chart(document.getElementById('velocityChart'), {
     type: 'line',
-     { labels: [], datasets: [{ label: 'Velocity (m/s)',  [], borderColor: 'rgb(75, 192, 192)', tension: 0.1, yAxisID: 'y' }, { label: 'Position (m)',  [], borderColor: 'rgb(255, 206, 86)', tension: 0.1, yAxisID: 'y1' }] },
-    options: { ...commonOptions, scales: { ...commonOptions.scales, y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Velocity (m/s)', color: '#888' } }, y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Position (m)', color: '#888' }, grid: { drawOnChartArea: false } }, x: { ...commonOptions.scales.x, title: { display: true, text: 'Time (ms)', color: '#888' } } } }
+    data: {  // ← ADDED
+      labels: [],
+      datasets: [
+        {
+          label: 'Velocity (m/s)',
+          data: [],  // ← ADDED "data:" key
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Position (m)',
+          data: [],  // ← ADDED "data:" key
+          borderColor: 'rgb(255, 206, 86)',
+          tension: 0.1,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        ...commonOptions.scales,
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: { display: true, text: 'Velocity (m/s)', color: '#888' }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: { display: true, text: 'Position (m)', color: '#888' },
+          grid: { drawOnChartArea: false }
+        },
+        x: {
+          ...commonOptions.scales.x,
+          title: { display: true, text: 'Time (ms)', color: '#888' }
+        }
+      }
+    }
   });
   
+  // ✅ Burn Chart - FIXED: Added "data:" keys
   charts.burn = new Chart(document.getElementById('burnChart'), {
     type: 'line',
-     { labels: [], datasets: [{ label: 'Burn Fraction (Z)',  [], borderColor: 'rgb(153, 102, 255)', backgroundColor: 'rgba(153, 102, 255, 0.1)', tension: 0.1, fill: true }] },
-    options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, min: 0, max: 1.2, title: { display: true, text: 'Fraction Burned', color: '#888' } }, x: { ...commonOptions.scales.x, title: { display: true, text: 'Time (ms)', color: '#888' } } } }
+    data: {  // ← ADDED
+      labels: [],
+      datasets: [
+        {
+          label: 'Burn Fraction (Z)',
+          data: [],  // ← ADDED "data:" key
+          borderColor: 'rgb(153, 102, 255)',
+          backgroundColor: 'rgba(153, 102, 255, 0.1)',
+          tension: 0.1,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        ...commonOptions.scales,
+        y: {
+          ...commonOptions.scales.y,
+          min: 0,
+          max: 1.2,
+          title: { display: true, text: 'Fraction Burned', color: '#888' }
+        },
+        x: {
+          ...commonOptions.scales.x,
+          title: { display: true, text: 'Time (ms)', color: '#888' }
+        }
+      }
+    }
   });
 }
 
