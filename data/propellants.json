@@ -1,4 +1,5 @@
-{"id": "custom", "name": "⚙️ Custom / Manual Entry", "description": "Use manual input values"},
+[
+  {"id": "custom", "name": "⚙️ Custom / Manual Entry", "description": "Use manual input values"},
   {"id": "cluster-1-1", "name": "💨 Ultra Fast: Alliant Bullseye", "description": "Cluster 1/7. Very fast pistol powder (PCC use).", "cluster": "Ultra Fast", "B": 0.000075, "n": 0.75, "rho_s": 1550, "lambda": 920000, "eta": 0.0009, "grain_type": "Flake"},
   {"id": "cluster-1-2", "name": "💨 Ultra Fast: Hodgdon Titegroup", "description": "Cluster 1/7. Dense fast powder. Common in 9mm carbines.", "cluster": "Ultra Fast", "B": 0.000070, "n": 0.76, "rho_s": 1580, "lambda": 930000, "eta": 0.0009, "grain_type": "Flake"},
   {"id": "cluster-1-3", "name": "💨 Ultra Fast: Accurate No. 7", "description": "Cluster 1/7. Fast spherical powder.", "cluster": "Ultra Fast", "B": 0.000065, "n": 0.78, "rho_s": 1600, "lambda": 940000, "eta": 0.0009, "grain_type": "Spherical"},
@@ -20,3 +21,4 @@
   {"id": "cluster-7-1", "name": "🪨 Ultra Slow: Hodgdon Retumbo", "description": "Cluster 7/7. Very large case. .338 Lapua.", "cluster": "Ultra Slow", "B": 0.0000020, "n": 0.93, "rho_s": 1660, "lambda": 1080000, "eta": 0.0012, "grain_type": "Extruded"},
   {"id": "cluster-7-2", "name": "🪨 Ultra Slow: Alliant Reloder 33", "description": "Cluster 7/7. Massive capacity. .338 Edge.", "cluster": "Ultra Slow", "B": 0.0000018, "n": 0.94, "rho_s": 1650, "lambda": 1090000, "eta": 0.0012, "grain_type": "Extruded"},
   {"id": "cluster-7-3", "name": "🪨 Ultra Slow: Vihtavuori 20N29", "description": "Cluster 7/7. 50 BMG standard. Artillery scale.", "cluster": "Ultra Slow", "B": 0.0000015, "n": 0.95, "rho_s": 1680, "lambda": 1100000, "eta": 0.0012, "grain_type": "Extruded"}
+  ]
